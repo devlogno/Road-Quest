@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tonkeeper Battery</title>
+    <style>
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            text-align: center;
+            overflow-x: hidden;
+        }
+        .header {
+            position: relative;
+            width: 100%;
+            height: 350px;
+            background: linear-gradient(to bottom, #00FF7F, #000);
+     
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            opacity: 0;
+            transform: translateY(-50px);
+            transition: all 1s ease;
+        }
+        .visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        h1 {
+            margin: 0;
+            font-size: 3.5em;
+            background: linear-gradient(90deg, #00FF7F, #00BFFF);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1; /* Ensure no extra space */
+        }
+        .typing-container {
+            display: inline-block;
+            overflow: hidden;
+            white-space: nowrap;
+            font-size: 3.8em; /* Match h1 font size */
+            line-height: 1; /* Remove extra space */
+            padding: 0; /* Ensure no padding */
+            vertical-align: bottom; /* Align with the bottom of h1 */
+            margin-top: 0.1em; /* Adjust this value to control the space */
+            height: 80px;
+        }
+        .caret {
+            border-right: .15em solid orange;
+            animation: blink-caret 0.75s step-end infinite;
+        }
+        @keyframes blink-caret {
+            from, to {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0;
+            }
+        }
+        .container {
+            padding: 20px;
+            max-width: 800px;
+            margin-top: 100px;
+        }
+        .feature {
+            position: absolute;
+     
+            right: 0;
+    
+            left: 0;
+            background: #1a1a1a;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 1s ease;
+        }
+        .feature.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .feature h2 {
+            background: linear-gradient(90deg, #00FF7F, #00BFFF);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .graphic {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .graphic svg {
+            width: 100px;
+            height: 100px;
+            animation: pulse 2s infinite;
+            cursor: pointer;
+            transition: filter 0.3s, transform 0.3s;
+        }
+        .graphic svg.glow {
+            filter: drop-shadow(0 0 10px #00FF7F) drop-shadow(0 0 20px #00FF7F);
+            transform: scale(1.2);
+        }
+        .epic-footer {
+            background: #1a1a1a;
+            width: 100%;
+            padding: 20px 0;
+            text-align: center;
+            position: relative;
+            color: #00FF7F;
+            font-size: 1.2em;
+        }
+        .epic-footer::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 5px;
+            background: linear-gradient(to right, #00FF7F, #00BFFF);
+            border-radius: 10px;
+        }
+        .footer-text {
+            margin: 0;
+            padding: 0 20px;
+            line-height: 1.5;
+        }
+        .footer-icons {
+            margin-top: 10px;
+        }
+        .footer-icons a {
+            color: #00FF7F;
+            margin: 0 10px;
+            text-decoration: none;
+            font-size: 1.5em;
+        }
+        @media (max-width: 600px) {
+            .container {
+                padding: 10px;
+            }
+            h1 {
+                font-size: 28px;
+            }
+            .typing-container {
+                font-size: 28px; /* Adjust for small screens */
+            }
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        @keyframes typing {
+            from {
+                width: 0;
+            }
+            to {
+                width: 100%;
+            }
+        }
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const elements = document.querySelectorAll('.header, .feature');
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            elements.forEach(element => {
+                observer.observe(element);
+            });
+
+            const svgs = document.querySelectorAll('.graphic svg');
+            svgs.forEach(svg => {
+                svg.addEventListener('click', () => {
+                    svg.classList.toggle('glow');
+                });
+            });
+
+            const messages = ["Bring game ideas to life!", "From concept to controller!"];
+            let messageIndex = 0;
+
+            const typingText = document.querySelector('.typing-text');
+
+            function typeMessage() {
+                typingText.textContent = "";
+                const message = messages[messageIndex];
+                typingText.style.opacity = '1';
+                let charIndex = 0;
+
+                function typeChar() {
+                    if (charIndex < message.length) {
+                        typingText.textContent += message[charIndex];
+                        charIndex++;
+                        setTimeout(typeChar, 100); // Adjust typing speed here
+                    } else {
+                        setTimeout(() => {
+                            backspaceMessage();
+                        }, 5000); // Adjust delay after typing finishes here
+                    }
+                }
+
+                function backspaceMessage() {
+                    if (charIndex > 0) {
+                        typingText.textContent = typingText.textContent.slice(0, -1);
+                        charIndex--;
+                        setTimeout(backspaceMessage, 50); // Adjust backspacing speed here
+                    } else {
+                        messageIndex = (messageIndex + 1) % messages.length;
+                        setTimeout(typeMessage, 500); // Adjust delay before typing the next message here
+                    }
+                }
+
+                typeChar();
+            }
+
+            setTimeout(typeMessage, 1000); // Initial delay before typing starts
+        });
+    </script>
+</head>
+<body>
+    <div class="header">
+        <h1>LoopLabs</h1>
+        <div class="typing-container">
+            <span class="typing-text"></span><span class="caret"></span>
+        </div>
+    </div>
+    <div class="app-showcase">
+        <a style="color: #00BFFF;" href="https://play.google.com/store/apps/details?id=com.LoopLabs.RoadQuest"><h2>Download</h2></a>
+        <h2>Road Quest</h2>
+        <img src="https://lh3.googleusercontent.com/bts2bOm0U7DqzLOgau2JD1JI9BAyzdVyefGZr6gLEl3ak5489x1QE0wGSrplACMw0g" 
+                        alt="App Icon" 
+                        class="app-icon">
+
+                    <style>
+                    .app-icon {
+                        border-radius: 10px; /* Adjust the value for more or less rounding */
+                        width: 100px; /* Optional: Adjust size */
+                        height: auto; /* Maintain aspect ratio */
+                    }
+                    </style>
+
+        <p>Road Quest, the ultimate 3D racing adventure! 🌍 Dive into high-speed racing, explore vast environments, and tackle extreme racing challenges. Whether you're a fan of rally racing, dirt racing, or hill climb racing, Road Quest has something for every racing enthusiast.
+        </p>
+    </div>
+
+    <div class="image-container">
+        <hr>
+        <img height="screens" width="300" src="https://play-lh.googleusercontent.com/DCvfj0GyI6W1yCfvObH63rV_I5bsw0HG2rodZfnfzx_aPd8RNrIhJuAOKLngxnX_sFw=w526-h296-rw" alt="Image 1">
+        <img height="screens" width="300" src="https://play-lh.googleusercontent.com/8NvOVzoz6gK1fVggJ45i3eQbLxGqjKbzmezVKJp28Rj-nOQYpgsoeH2Dl2c0hOa80Q=w526-h296-rw" alt="Image 2">
+        <img height="screens" width="300" src="https://play-lh.googleusercontent.com/fqHBuqVGBrevnXyNNNNMjZjxI9J8k9T9HWOZZUARDkUPRT4sdMxa8TXeZJoBkMHiCiI=w526-h296-rw" alt="Image 3">
+    </div>
+
+    <div class="Contact">
+        <hr>
+        <h2>Contact Me</h2>
+        <form action="mailto:your_email@example.com" method="post" enctype="text/plain">      
+        <label for="name">Name:</label>       
+        <input type="text" id="name" name="name" required><br><br>   
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required><br><br>
+        <label for="message">Message:</label><br>
+        <textarea id="message" name="message" rows="5" cols="40" required></textarea><br><br>
+        <input type="submit" value="Send Mail" class="styled-button">      
+        </form>
+
+        <style>
+            /* Style for the submit button */
+            .styled-button {
+              background-color: #00BFFF; /* Green background */
+              color: white; /* White text */
+              padding: 10px 20px; /* Padding for size */
+              border: none; /* Remove borders */
+              border-radius: 5px; /* Rounded corners */
+              cursor: pointer; /* Pointer cursor on hover */
+              font-size: 16px; /* Increase font size */
+              transition: background-color 0.3s ease; /* Smooth hover effect */
+            }
+          
+            .styled-button:hover {
+              background-color: #45a049; /* Slightly darker green on hover */
+            }
+          
+            .styled-button:active {
+              background-color: #3e8e41; /* Even darker green when clicked */
+              transform: scale(0.98); /* Slightly shrink button when clicked */
+            }
+          </style>
+
+
+        <br>
+    </div>
+
+    <div class="epic-footer">
+        <div class="footer-text">
+            <p>Transform pixels into play.</p>
+            <p>&copy; 2024 LoopLabs.<br>All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>
